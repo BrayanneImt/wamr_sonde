@@ -1,0 +1,69 @@
+#
+# apps/wamr_sonde/Kconfig
+#
+# Application NuttX qui heberge WAMR (en bibliotheque), recoit un module .wasm
+# par UART et l'execute avec la table de fonctions natives de la sonde SPIREC.
+# Depend de INTERPRETERS_WAMR : la bibliotheque WAMR doit etre compilee.
+#
+
+config WAMR_SONDE
+	tristate "Sonde SPIREC (hote WAMR portable)"
+	default n
+	depends on INTERPRETERS_WAMR
+	---help---
+		Firmware hote NuttX pour la sonde de supervision SPIREC.
+		Recoit un module .wasm par UART (protocole [taille(4 LE)][binaire]),
+		enregistre la table de fonctions natives (identique a la version
+		Zephyr, module "env"), puis charge et execute le module via WAMR.
+
+		Prerequis : activer WAMR sous Application Configuration -> Interpreters
+		avec l'interpreteur rapide (FAST) et la libc builtin.
+
+if WAMR_SONDE
+
+config WAMR_SONDE_PROGNAME
+	string "Nom du programme"
+	default "wamr_sonde"
+	---help---
+		Nom de la commande enregistree dans NSH.
+
+config WAMR_SONDE_PRIORITY
+	int "Priorite de la tache"
+	default 100
+
+config WAMR_SONDE_STACKSIZE
+	int "Taille de pile de la tache hote (octets)"
+	default 8192
+	---help---
+		Pile de la tache NuttX qui pilote WAMR (distincte de la pile
+		d'execution du module WASM, fixee dans le code).
+
+config WAMR_SONDE_UART_DEV
+	string "Peripherique UART de reception du .wasm"
+	default "/dev/console"
+	---help---
+		Peripherique serie sur lequel le module .wasm est recu. Par defaut
+		la console. Sur ESP32-S3, cela correspond au port utilise par NSH.
+
+config WAMR_SONDE_WASM_MAX_KB
+	int "Taille max du module .wasm accepte (Ko)"
+	default 32
+	---help---
+		Le module SPIREC fait ~7 Ko ; 32 Ko laisse une marge confortable.
+
+config WAMR_SONDE_POOL_KB
+	int "Taille du pool memoire WAMR (Ko)"
+	default 160
+	---help---
+		Pool passe a wasm_runtime_full_init (Alloc_With_Pool). Doit contenir
+		la memoire lineaire du module (64 Ko) + les metadonnees WAMR.
+
+config WAMR_SONDE_STACK_KB
+	int "Pile d'execution WASM (Ko)"
+	default 8
+
+config WAMR_SONDE_HEAP_KB
+	int "Tas d'execution WASM (Ko)"
+	default 16
+
+endif # WAMR_SONDE

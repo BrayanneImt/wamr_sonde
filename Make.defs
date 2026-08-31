@@ -1,0 +1,10 @@
+############################################################################
+# apps/wamr_sonde/Make.defs
+#
+# Enregistre l'application dans le systeme de build NuttX-apps.
+# SPDX-License-Identifier: Apache-2.0
+############################################################################
+
+ifneq ($(CONFIG_WAMR_SONDE),)
+CONFIGURED_APPS += $(APPDIR)/wamr_sonde
+endif

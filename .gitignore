@@ -1,1 +1,6 @@
 /.vscode
+wamr_sonde_main.c.home*
+host_api_nuttx.c.home*
+.built
+.depend
+Make.dep

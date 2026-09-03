@@ -1,5 +1,7 @@
 /****************************************************************************
- * Couche hote WAMR pour NuttX : transport abstrait + metriques + identite
+ * apps/wamr_sonde/host_api_nuttx.c
+ *
+ * Couche hote WAMR pour NuttX : transport abstrait + metriques + identite.
  *
  * SPDX-License-Identifier: Apache-2.0
  ****************************************************************************/
@@ -21,6 +23,7 @@
 #include "wasm_export.h"
 
 #include "host_api_nuttx.h"
+#include "deploy_nuttx.h"
 
 /****************************************************************************
  * Identite du noeud (surchargeable via Kconfig plus tard ; en dur ici pour
@@ -54,7 +57,7 @@ static uint32_t g_tx_errors;
 
 /* Cycle de vie. */
 static uint32_t g_reset_count;
-static uint32_t g_update_count;   /* mises a jour a chaud (jalon ulterieur) */
+/* update_count est tenu cote main.c (deploy_update_count) : voir host_poll_update. */
 
 /* Base de temps pour uptime_ms. */
 static uint64_t g_boot_us;
@@ -280,21 +283,24 @@ static void h_sleep(wasm_exec_env_t e, uint32_t secs)
 }
 
 /****************************************************************************
- * HOST FUNCTIONS — mise a jour a chaud (jalon ulterieur)
- * Pour ce jalon, aucune mise a jour n'est detectee : la sonde tourne jusqu'au
- * reset. host_poll_update renvoie donc toujours 0.
+ * HOST FUNCTIONS — mise a jour a chaud (hot-update)
+ *
+ * host_poll_update sonde le reseau (via deploy_try_stage, defini dans
+ * wamr_sonde_main.c) et retourne 1 si un nouveau module attend d'etre charge.
+ * La sonde, sur retour 1, ferme son transport et rend la main proprement.
  ****************************************************************************/
 
 static int32_t h_poll_update(wasm_exec_env_t e)
 {
   (void)e;
-  return 0;   /* pas de hot-update sur ce jalon NuttX */
+  deploy_try_stage();
+  return (int32_t)deploy_pending();
 }
 
 static uint32_t h_update_count(wasm_exec_env_t e)
 {
   (void)e;
-  return g_update_count;
+  return deploy_update_count();
 }
 
 /****************************************************************************

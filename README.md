@@ -87,6 +87,7 @@ Aucune entrée à exclure (ni CPUINFO, ni PROCESS, ni MEMINFO).
 - activer **`CONFIG_ADC`** ;
 - activer le **driver ADC ESP32‑S3** et le **canal** câblé sur la batterie
   (Heltec v3 : ADC1 canal 0 = GPIO1). Un `/dev/adc0` doit apparaître.
+- dans **`System Type → ESP32-S3 Peripheral Selection`** activer l'ADC (**Analog-to-Digital Conversion**)
 
 **f) L'application** —
 `Application Configuration → Sonde SPIREC (hôte WAMR portable)` :
@@ -180,7 +181,7 @@ Côté serveur, `update_count` s'incrémente (distinct de `reset_count`).
 | `reset_count`         | compteur interne                      | réel        |
 | `update_count`        | compteur de hot‑update                | réel        |
 | `battery_mv`          | ADC `/dev/adc0` + pont diviseur       | conditionnel|
-| `coap_retransmissions`| —                                     | 0 (voir §6) |
+| `coap_retransmissions`| —                                     | 0           |
 
 ---
 
